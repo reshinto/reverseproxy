@@ -10,7 +10,6 @@ const PORT = 5000;
 
 app.get("/", async (req, res) => {
   try {
-    let config = {};
     let url = req?.query?.url || req?.query?.json;
     if (req?.query?.url) {
       const browser = await puppeteer.launch({
@@ -32,17 +31,14 @@ app.get("/", async (req, res) => {
       await page.goto(req.query.url);
       res.json({ status });
       await browser.close();
-    } else {
-      const response = await fetch(url, config);
-      if (req?.query?.url) {
-        res.send(response);
-      } else if (req?.query?.json) {
-        const data = await response.json();
-        res.json(data);
-      }
+    } else if (req?.query?.web) {
+      const response = await fetch(req?.query?.web);
+      const text = await response.text();
+      res.send(text);
     }
   } catch (error) {
     console.log("server crashed", error);
+    res.status(500).send(error);
   }
 });
 
